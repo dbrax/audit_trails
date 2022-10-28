@@ -28,7 +28,7 @@
             "Epmnzava\\AuditTrails\\": "src"
         },
         "files": [
-            "Epmnzava/AuditTrails/Helpers/functions.php"
+            "Helpers/functions.php"
 
 
           ]
