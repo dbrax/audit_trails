@@ -1,0 +1,59 @@
+{
+    "name": "epmnzava/audit_trails",
+    "description": "Helps you setup audit trails fast on laravel applications",
+    "keywords": [
+        "epmnzava",
+        "audit_trails"
+    ],
+    "homepage": "https://github.com/epmnzava/audit_trails",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Emmanuel Mnzava",
+            "email": "epmnzava@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Epmnzava\\AuditTrails\\": "src"
+        },
+        "files": [
+            "Epmnzava/AuditTrails/Helpers/functions.php"
+
+
+          ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Epmnzava\\AuditTrails\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Epmnzava\\AuditTrails\\AuditTrailsServiceProvider"
+            ],
+            "aliases": {
+                "AuditTrails": "Epmnzava\\AuditTrails\\AuditTrailsFacade"
+            }
+        }
+    }
+}
