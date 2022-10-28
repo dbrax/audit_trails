@@ -25,15 +25,15 @@ class AuditTrailsServiceProvider extends ServiceProvider
             ], 'config');
 
             //publishing migrations here..
-            if (!class_exists('AuditTrailTable')) {
-                $this->publishes([
-                    __DIR__ . '/../database/migrations/create_audit_trail_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_audit_trail_table.php')
+
+            $this->publishes([
+                __DIR__ . '/../database/migrations/create_audit_trail_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_audit_trail_table.php')
 
 
 
 
-                ], 'migrations');
-            }
+            ], 'migrations');
+
 
 
 
