@@ -13,7 +13,7 @@ class AuditTrails
     {
     }
 
-    public function logdata(string $event, string $event_category, array $request, array $response, string $ip, string $fullUrl, string $device, string $comment, Integer $userid, $request_id = null, $session_id = null)
+    public function logdata(string $event, string $event_category, array $request, array $response, string $ip, string $fullUrl, string $device, string $comment, $userid = null, $request_id = null, $session_id = null)
     {
         $audit = new AuditTrail;
         $audit->event = $event;
