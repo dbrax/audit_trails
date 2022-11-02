@@ -25,8 +25,8 @@ class CreateAuditTrailTable extends Migration
             $table->id();
             $table->string('event');
             $table->string('event_category')->nullable();
-            $table->string('request')->nullable();
-            $table->string('response')->nullable();
+            $table->text('request')->nullable();
+            $table->text('response')->nullable();
             $table->string('ip')->nullable();
             $table->string('device')->nullable();
             $table->string('fullUrl')->nullable();
