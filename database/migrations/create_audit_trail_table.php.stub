@@ -32,6 +32,7 @@ class CreateAuditTrailTable extends Migration
             $table->string('fullUrl')->nullable();
             $table->string('comment')->nullable();
             $table->integer('userid')->nullable();
+            $table->integer('created_by')->nullable();
             $table->string('request_id')->nullable();
             $table->string('session_id')->nullable();
             $table->timestamps();

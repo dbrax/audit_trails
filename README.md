@@ -17,8 +17,8 @@ composer require epmnzava/audit_trails
    public function test_log(Request $request)
     {
 
-        //log_audit(string $event, string $event_category, array $request, array $response, string $ip, string $fullUrl, string $device, string $comment,  $userid = null, $request_id = null, $session_id = null)
-        log_audit("LOGIN", "MEMBER AUTHENTICATION", $request->all(), ["status" => 200, "message" => "success"], $request->ip(), $request->fullUrl(), $request->userAgent(), "System member has successfully login", 1, null, null);
+        //log_audit(string $event, string $event_category, array $request, array $response, string $ip, string $fullUrl, string $device, string $comment,  $userid = null,$createdby=null $request_id = null, $session_id = null)
+        log_audit("LOGIN", "MEMBER AUTHENTICATION", $request->all(), ["status" => 200, "message" => "success"], $request->ip(), $request->fullUrl(), $request->userAgent(), "System member has successfully login", 1,2 null, null);
 
     }
 
@@ -33,6 +33,7 @@ event_category: MEMBER AUTHENTICATION
        fullUrl: http://packagetester.test/test_log
        comment: System member has successfully login
         userid: 1
+    created_by: 2
     request_id: NULL
     session_id: NULL
     created_at: 2022-10-29 07:22:52
