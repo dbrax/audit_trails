@@ -5,8 +5,18 @@ namespace Orchestra\Testbench\Concerns;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
+/**
+ * @internal
+ */
 trait InteractsWithPublishedFiles
 {
+    /**
+     * Determine if trait teardown has been registered.
+     *
+     * @var bool
+     */
+    protected $interactsWithPublishedFilesTeardownRegistered = false;
+
     /**
      * Setup Interacts with Published Files environment.
      */
@@ -21,8 +31,12 @@ trait InteractsWithPublishedFiles
      */
     protected function tearDownInteractsWithPublishedFiles(): void
     {
-        $this->cleanUpFiles();
-        $this->cleanUpMigrationFiles();
+        if ($this->interactsWithPublishedFilesTeardownRegistered === false) {
+            $this->cleanUpFiles();
+            $this->cleanUpMigrationFiles();
+        }
+
+        $this->interactsWithPublishedFilesTeardownRegistered = true;
     }
 
     /**
@@ -48,7 +62,7 @@ trait InteractsWithPublishedFiles
      *
      * @param  array<int, string>  $contains
      */
-    protected function assertFileNotContains(array $contains, string $file, string $message = ''): void
+    protected function assertFileDoesNotContains(array $contains, string $file, string $message = ''): void
     {
         $this->assertFilenameExists($file);
 
@@ -59,6 +73,16 @@ trait InteractsWithPublishedFiles
         foreach ($contains as $needle) {
             $this->assertStringNotContainsString($needle, $haystack, $message);
         }
+    }
+
+    /**
+     * Assert file doesn't contains data.
+     *
+     * @param  array<int, string>  $contains
+     */
+    protected function assertFileNotContains(array $contains, string $file, string $message = ''): void
+    {
+        $this->assertFileDoesNotContains($contains, $file, $message);
     }
 
     /**
@@ -80,13 +104,23 @@ trait InteractsWithPublishedFiles
      *
      * @param  array<int, string>  $contains
      */
-    protected function assertMigrationFileNotContains(array $contains, string $file, string $message = ''): void
+    protected function assertMigrationFileDoesNotContains(array $contains, string $file, string $message = ''): void
     {
         $haystack = $this->app['files']->get($this->getMigrationFile($file));
 
         foreach ($contains as $needle) {
             $this->assertStringNotContainsString($needle, $haystack, $message);
         }
+    }
+
+    /**
+     * Assert file doesn't contains data.
+     *
+     * @param  array<int, string>  $contains
+     */
+    protected function assertMigrationFileNotContains(array $contains, string $file, string $message = ''): void
+    {
+        $this->assertMigrationFileDoesNotContains($contains, $file, $message);
     }
 
     /**
@@ -102,11 +136,19 @@ trait InteractsWithPublishedFiles
     /**
      * Assert filename not exists.
      */
-    protected function assertFilenameNotExists(string $file): void
+    protected function assertFilenameDoesNotExists(string $file): void
     {
         $appFile = $this->app->basePath($file);
 
         $this->assertTrue(! $this->app['files']->exists($appFile), "Assert file {$file} doesn't exist");
+    }
+
+    /**
+     * Assert filename not exists.
+     */
+    protected function assertFilenameNotExists(string $file): void
+    {
+        $this->assertFilenameDoesNotExists($file);
     }
 
     /**
@@ -142,7 +184,7 @@ trait InteractsWithPublishedFiles
     {
         $this->app['files']->delete(
             Collection::make($this->app['files']->files($this->app->databasePath('migrations')))
-                ->filter(function ($file) {
+                ->filter(static function ($file) {
                     return Str::endsWith($file, '.php');
                 })->all()
         );

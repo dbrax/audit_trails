@@ -4,7 +4,7 @@
  * Author: Emmanuel Paul Mnzava
  * Twitter: @epmnzava
  * Github:https://github.com/dbrax/audit-trails
- * Email: epmnzava@gmail.com
+ * Email: emmanuel@dsg.co.tz
  * 
  */
 

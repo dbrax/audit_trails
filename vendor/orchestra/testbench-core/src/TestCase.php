@@ -2,29 +2,21 @@
 
 namespace Orchestra\Testbench;
 
-use Illuminate\Foundation\Testing\Concerns\InteractsWithAuthentication;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithConsole;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithContainer;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithSession;
-use Illuminate\Foundation\Testing\Concerns\InteractsWithTime;
-use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Illuminate\Foundation\Testing\Concerns\MocksApplicationServices;
+use Illuminate\Foundation\Testing;
 use PHPUnit\Framework\TestCase as PHPUnit;
 
 abstract class TestCase extends PHPUnit implements Contracts\TestCase
 {
-    use Concerns\Testing,
-        InteractsWithAuthentication,
-        InteractsWithConsole,
-        InteractsWithContainer,
-        InteractsWithDatabase,
-        InteractsWithExceptionHandling,
-        InteractsWithSession,
-        InteractsWithTime,
-        MakesHttpRequests,
-        MocksApplicationServices;
+    use Concerns\Testing;
+    use Testing\Concerns\InteractsWithAuthentication;
+    use Testing\Concerns\InteractsWithConsole;
+    use Testing\Concerns\InteractsWithContainer;
+    use Testing\Concerns\InteractsWithDatabase;
+    use Testing\Concerns\InteractsWithExceptionHandling;
+    use Testing\Concerns\InteractsWithSession;
+    use Testing\Concerns\InteractsWithTime;
+    use Testing\Concerns\MakesHttpRequests;
+    use Testing\Concerns\MocksApplicationServices;
 
     /**
      * The base URL to use while testing the application.
@@ -60,9 +52,45 @@ abstract class TestCase extends PHPUnit implements Contracts\TestCase
      */
     protected function setUpTraits()
     {
-        $uses = array_flip(class_uses_recursive(static::class));
+        return $this->setUpTheTestEnvironmentTraits(static::cachedUsesForTestCase());
+    }
 
-        return $this->setUpTheTestEnvironmentTraits($uses);
+    /**
+     * Determine trait should be ignored from being autoloaded.
+     *
+     * @param  class-string  $use
+     * @return bool
+     */
+    protected function setUpTheTestEnvironmentTraitToBeIgnored(string $use): bool
+    {
+        return \in_array($use, [
+            Testing\RefreshDatabase::class,
+            Testing\DatabaseMigrations::class,
+            Testing\DatabaseTransactions::class,
+            Testing\WithoutMiddleware::class,
+            Testing\WithoutEvents::class,
+            Testing\WithFaker::class,
+            Testing\Concerns\InteractsWithAuthentication::class,
+            Testing\Concerns\InteractsWithConsole::class,
+            Testing\Concerns\InteractsWithContainer::class,
+            Testing\Concerns\InteractsWithDatabase::class,
+            Testing\Concerns\InteractsWithDeprecationHandling::class,
+            Testing\Concerns\InteractsWithExceptionHandling::class,
+            Testing\Concerns\InteractsWithSession::class,
+            Testing\Concerns\InteractsWithTime::class,
+            Testing\Concerns\MakesHttpRequests::class,
+            Testing\Concerns\MocksApplicationServices::class,
+            Concerns\CreatesApplication::class,
+            Concerns\Database\HandlesConnections::class,
+            Concerns\HandlesAnnotations::class,
+            Concerns\HandlesDatabases::class,
+            Concerns\HandlesRoutes::class,
+            Concerns\InteractsWithPHPUnit::class,
+            Concerns\InteractsWithWorkbench::class,
+            Concerns\Testing::class,
+            Concerns\WithFactories::class,
+            Concerns\WithWorkbench::class,
+        ]);
     }
 
     /**
@@ -73,5 +101,31 @@ abstract class TestCase extends PHPUnit implements Contracts\TestCase
     protected function refreshApplication()
     {
         $this->app = $this->createApplication();
+    }
+
+    /**
+     * Prepare the testing environment before the running the test case.
+     *
+     * @return void
+     *
+     * @codeCoverageIgnore
+     */
+    public static function setUpBeforeClass(): void
+    {
+        static::setUpBeforeClassUsingPHPUnit();
+        static::setUpBeforeClassUsingWorkbench();
+    }
+
+    /**
+     * Clean up the testing environment before the next test case.
+     *
+     * @return void
+     *
+     * @codeCoverageIgnore
+     */
+    public static function tearDownAfterClass(): void
+    {
+        static::tearDownAfterClassUsingWorkbench();
+        static::tearDownAfterClassUsingPHPUnit();
     }
 }

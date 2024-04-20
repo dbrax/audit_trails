@@ -24,6 +24,7 @@ use Spatie\Ray\Payloads\CreateLockPayload;
 use Spatie\Ray\Payloads\CustomPayload;
 use Spatie\Ray\Payloads\DecodedJsonPayload;
 use Spatie\Ray\Payloads\ExceptionPayload;
+use Spatie\Ray\Payloads\ExpandPayload;
 use Spatie\Ray\Payloads\FileContentsPayload;
 use Spatie\Ray\Payloads\HideAppPayload;
 use Spatie\Ray\Payloads\HidePayload;
@@ -50,6 +51,7 @@ use Spatie\Ray\Settings\SettingsFactory;
 use Spatie\Ray\Support\Counters;
 use Spatie\Ray\Support\ExceptionHandler;
 use Spatie\Ray\Support\IgnoredValue;
+use Spatie\Ray\Support\Invador;
 use Spatie\Ray\Support\Limiters;
 use Spatie\Ray\Support\RateLimiter;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -101,6 +103,9 @@ class Ray
 
     /** @var string */
     public static $projectName = '';
+
+    /** @var Closure|null */
+    public static $beforeSendRequest = null;
 
     public static function create(Client $client = null, string $uuid = null): self
     {
@@ -169,9 +174,22 @@ class Ray
 
     public function newScreen(string $name = ''): self
     {
+        $name = $this->sanitizeNewScreenName($name);
+
         $payload = new NewScreenPayload($name);
 
         return $this->sendRequest($payload);
+    }
+
+    protected function sanitizeNewScreenName(string $name): string
+    {
+        if (strpos($name, '__pest_evaluable_') === 0) {
+            $name = substr($name, 17);
+
+            $name = str_replace('_', ' ', $name);
+        }
+
+        return $name;
     }
 
     public function clearAll(): self
@@ -301,6 +319,22 @@ class Ray
         $payload = new MeasurePayload('closure', $event);
 
         return $this->sendRequest($payload);
+    }
+
+    public function expand(...$levelOrKey): self
+    {
+        if (empty($levelOrKey)) {
+            $levelOrKey = [1];
+        }
+
+        $payload = new ExpandPayload($levelOrKey);
+
+        return $this->sendRequest($payload);
+    }
+
+    public function expandAll(): self
+    {
+        return $this->expand(999);
     }
 
     public function stopTime(string $stopwatchName = ''): self
@@ -648,6 +682,11 @@ class Ray
         return $this;
     }
 
+    public function invade($object): Invador
+    {
+        return new Invador($object, $this);
+    }
+
     public function send(...$arguments): self
     {
         if (! count($arguments)) {
@@ -663,7 +702,7 @@ class Ray
                 return $argument;
             }
 
-            if (! is_callable($argument)) {
+            if (! $argument instanceof Closure) {
                 return $argument;
             }
 
@@ -777,6 +816,10 @@ class Ray
             'project_name' => static::$projectName,
         ], $meta);
 
+        if ($closure = static::$beforeSendRequest) {
+            $closure($payloads, $allMeta);
+        }
+
         foreach ($payloads as $payload) {
             $payload->remotePath = $this->settings->remote_path;
             $payload->localPath = $this->settings->local_path;
@@ -814,5 +857,10 @@ class Ray
         self::$client->send($request);
 
         self::rateLimiter()->notify();
+    }
+
+    public static function beforeSendRequest(?Closure $closure = null): void
+    {
+        static::$beforeSendRequest = $closure;
     }
 }

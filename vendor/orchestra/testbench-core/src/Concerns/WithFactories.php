@@ -5,6 +5,11 @@ namespace Orchestra\Testbench\Concerns;
 use Exception;
 use Illuminate\Database\Eloquent\Factory as ModelFactory;
 
+/**
+ * @api
+ *
+ * @deprecated
+ */
 trait WithFactories
 {
     /**
@@ -24,6 +29,8 @@ trait WithFactories
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  string  $path
      * @return $this
+     *
+     * @throws \Exception
      */
     protected function loadFactoriesUsing($app, string $path)
     {

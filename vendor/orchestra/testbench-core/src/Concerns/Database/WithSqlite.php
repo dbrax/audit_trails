@@ -9,6 +9,9 @@ use Illuminate\Database\Schema\SQLiteBuilder;
 use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Fluent;
 
+/**
+ * @api
+ */
 trait WithSqlite
 {
     /**
@@ -29,7 +32,7 @@ trait WithSqlite
 
                     return new class($this) extends SQLiteBuilder
                     {
-                        protected function createBlueprint($table, Closure $callback = null)
+                        protected function createBlueprint($table, ?Closure $callback = null)
                         {
                             return new class($table, $callback) extends Blueprint
                             {

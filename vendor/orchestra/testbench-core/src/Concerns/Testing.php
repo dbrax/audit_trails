@@ -4,7 +4,6 @@ namespace Orchestra\Testbench\Concerns;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
-use Illuminate\Console\Application as Artisan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -12,21 +11,25 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutEvents;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Queue\Queue;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\ParallelTesting;
 use Mockery;
+use Orchestra\Testbench\Foundation\Application as Testbench;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
+/**
+ * @api
+ */
 trait Testing
 {
-    use CreatesApplication,
-        HandlesAnnotations,
-        HandlesDatabases,
-        HandlesRoutes,
-        WithFactories,
-        WithLaravelMigrations,
-        WithLoadMigrationsFrom;
+    use CreatesApplication;
+    use HandlesAnnotations;
+    use HandlesAttributes;
+    use HandlesDatabases;
+    use HandlesRoutes;
+    use InteractsWithMigrations;
+    use WithFactories;
 
     /**
      * The Illuminate application instance.
@@ -95,8 +98,6 @@ trait Testing
 
         Model::setEventDispatcher($this->app['events']);
 
-        $this->setUpApplicationRoutes();
-
         $this->setUpHasRun = true;
     }
 
@@ -144,9 +145,7 @@ trait Testing
         $this->afterApplicationCreatedCallbacks = [];
         $this->beforeApplicationDestroyedCallbacks = [];
 
-        Artisan::forgetBootstrappers();
-
-        Queue::createPayloadUsing(null);
+        Testbench::flushState();
 
         if ($this->callbackException) {
             throw $this->callbackException;
@@ -161,33 +160,73 @@ trait Testing
      */
     final protected function setUpTheTestEnvironmentTraits(array $uses): array
     {
+        if (isset($uses[WithWorkbench::class])) {
+            /** @phpstan-ignore-next-line */
+            $this->setUpWithWorkbench();
+        }
+
         $this->setUpDatabaseRequirements(function () use ($uses) {
             if (isset($uses[RefreshDatabase::class])) {
+                /** @phpstan-ignore-next-line */
                 $this->refreshDatabase();
             }
 
             if (isset($uses[DatabaseMigrations::class])) {
+                /** @phpstan-ignore-next-line */
                 $this->runDatabaseMigrations();
             }
         });
 
         if (isset($uses[DatabaseTransactions::class])) {
+            /** @phpstan-ignore-next-line */
             $this->beginDatabaseTransaction();
         }
 
         if (isset($uses[WithoutMiddleware::class])) {
+            /** @phpstan-ignore-next-line */
             $this->disableMiddlewareForAllTests();
         }
 
         if (isset($uses[WithoutEvents::class])) {
+            /** @phpstan-ignore-next-line */
             $this->disableEventsForAllTests();
         }
 
         if (isset($uses[WithFaker::class])) {
+            /** @phpstan-ignore-next-line */
             $this->setUpFaker();
         }
 
+        Collection::make($uses)
+            ->reject(function ($use) {
+                return $this->setUpTheTestEnvironmentTraitToBeIgnored($use);
+            })->transform(static function ($use) {
+                return class_basename($use);
+            })->each(function ($traitBaseName) {
+                /** @var string $traitBaseName */
+                if (method_exists($this, $method = 'setUp'.$traitBaseName)) {
+                    $this->{$method}();
+                }
+
+                if (method_exists($this, $method = 'tearDown'.$traitBaseName)) {
+                    $this->beforeApplicationDestroyed(function () use ($method) {
+                        $this->{$method}();
+                    });
+                }
+            });
+
         return $uses;
+    }
+
+    /**
+     * Determine trait should be ignored from being autoloaded.
+     *
+     * @param  class-string  $use
+     * @return bool
+     */
+    protected function setUpTheTestEnvironmentTraitToBeIgnored(string $use): bool
+    {
+        return false;
     }
 
     /**

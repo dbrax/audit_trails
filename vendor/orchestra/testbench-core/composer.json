@@ -2,7 +2,7 @@
     "name": "orchestra/testbench-core",
     "description": "Testing Helper for Laravel Development",
     "homepage": "https://packages.tools/testbench",
-    "keywords": ["laravel", "orchestral", "orchestra-platform", "testing", "tdd", "bdd"],
+    "keywords": ["laravel", "laravel-packages", "testing", "tdd", "bdd", "dev"],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/orchestral/testbench/issues",
@@ -20,12 +20,15 @@
             "Orchestra\\Testbench\\" : "src/"
         },
         "files": [
-            "src/helpers.php"
+            "src/functions.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
-            "Orchestra\\Testbench\\Tests\\": "tests/"
+            "Orchestra\\Testbench\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "bin": [
@@ -38,20 +41,29 @@
         "vlucas/phpdotenv": "^5.1"
     },
     "require-dev": {
-        "laravel/framework": "^8.75",
-        "laravel/laravel": "8.x-dev",
+        "laravel/framework": "^8.83.27",
         "mockery/mockery": "^1.4.4",
-        "orchestra/canvas": "^6.1",
+        "phpstan/phpstan": "^1.10.7",
         "phpunit/phpunit": "^8.5.21 || ^9.5.10",
         "spatie/laravel-ray": "^1.7.1",
         "symfony/process": "^5.0"
     },
+    "conflict": {
+        "brianium/paratest": "<6.4.0 || >=7.0.0",
+        "laravel/framework": "<8.83.27 || >=9.0.0",
+        "nunomaduro/collision": "<5.0.0 || >=6.0.0",
+        "orchestra/testbench-dusk": "<6.43.0 || >=7.0.0",
+        "phpunit/phpunit": "<8.5.21 || >=9.0.0 <9.5.10 || >=10.0.0"
+    },
     "suggest": {
-        "laravel/framework": "Required for testing (^8.75).",
+        "brianium/paratest": "Allow using parallel testing (^6.4).",
+        "laravel/framework": "Required for testing (^8.83.27).",
         "mockery/mockery": "Allow using Mockery for testing (^1.4.4).",
+        "nunomaduro/collision": "Allow using Laravel style tests output and parallel testing (^5.0).",
         "orchestra/testbench-browser-kit": "Allow using legacy Laravel BrowserKit for testing (^6.0).",
         "orchestra/testbench-dusk": "Allow using Laravel Dusk for testing (^6.0).",
-        "phpunit/phpunit": "Allow using PHPUnit for testing (^8.5.21|^9.5.10|^10.0)."
+        "phpunit/phpunit": "Allow using PHPUnit for testing (^8.5.21|^9.5.10|^10.0).",
+        "symfony/process": "Required to use Orchestra\\Testbench\\remote function (^5.0)."
     },
     "extra": {
         "branch-alias": {
@@ -59,19 +71,31 @@
         }
     },
     "scripts": {
-        "prepare": [
-            "@php testbench package:discover --ansi"
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "prepare": "@php testbench package:discover --ansi",
+        "clear": [
+            "@php -r \"file_exists('laravel/.env') && unlink('laravel/.env');\"",
+            "@php -r \"file_exists('laravel/testbench.yaml') && unlink('laravel/testbench.yaml');\"",
+            "@php -r \"file_exists('laravel/database/database.sqlite') && unlink('laravel/database/database.sqlite');\"",
+            "@php testbench view:clear"
+        ],
+        "lint": [
+            "@php vendor/bin/phpstan analyse"
         ],
         "test": [
-            "@composer run prepare",
             "@php vendor/bin/phpunit -c ./ --color"
         ],
-        "post-autoload-dump": [
-            "@composer run prepare"
+        "ci": [
+            "@post-autoload-dump",
+            "@lint",
+            "@test"
         ]
     },
     "config": {
         "sort-packages": true
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }

@@ -30,7 +30,7 @@ class PackageManifest extends IlluminatePackageManifest
      * @param  \Illuminate\Filesystem\Filesystem  $files
      * @param  string  $basePath
      * @param  string  $manifestPath
-     * @param  object|null  $testbench
+     * @param  \Orchestra\Testbench\Contracts\TestCase|object|null  $testbench
      */
     public function __construct(Filesystem $files, $basePath, $manifestPath, $testbench = null)
     {
@@ -48,6 +48,7 @@ class PackageManifest extends IlluminatePackageManifest
      */
     public static function swap($app, $testbench = null)
     {
+        /** @var \Illuminate\Foundation\PackageManifest $base */
         $base = $app->make(IlluminatePackageManifest::class);
 
         $app->instance(
@@ -131,7 +132,7 @@ class PackageManifest extends IlluminatePackageManifest
             return [];
         }
 
-        $package = transform(file_get_contents(TESTBENCH_WORKING_PATH.'/composer.json'), function ($json) {
+        $package = transform(file_get_contents(TESTBENCH_WORKING_PATH.'/composer.json'), static function ($json) {
             return json_decode($json, true);
         });
 

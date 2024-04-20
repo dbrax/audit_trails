@@ -4,31 +4,53 @@ namespace Orchestra\Testbench\Concerns;
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Foundation\Application as LaravelApplication;
+use Orchestra\Testbench\Attributes\DefineRoute;
+use Orchestra\Testbench\Features\TestingFeature;
 use Orchestra\Testbench\Foundation\Application;
 
+use function Orchestra\Testbench\refresh_router_lookups;
+
+/**
+ * @internal
+ */
 trait HandlesRoutes
 {
     /**
      * Setup routes requirements.
+     *
+     * @param  \Illuminate\Foundation\Application  $app
      */
-    protected function setUpApplicationRoutes(): void
+    protected function setUpApplicationRoutes($app): void
     {
-        if ($this->app->routesAreCached()) {
+        if ($app->routesAreCached()) {
             return;
         }
 
-        $this->defineRoutes($this->app['router']);
+        /** @var \Illuminate\Routing\Router $router */
+        $router = $app['router'];
 
-        $this->app['router']->middleware('web')
-            ->group(function ($router) {
-                $this->defineWebRoutes($router);
-            });
+        TestingFeature::run(
+            $this,
+            function () use ($router) {
+                $this->defineRoutes($router);
 
-        if (method_exists($this, 'parseTestMethodAnnotations')) {
-            $this->parseTestMethodAnnotations($this->app, 'define-route');
-        }
+                $router->middleware('web')
+                    ->group(function ($router) {
+                        $this->defineWebRoutes($router);
+                    });
+            },
+            function () use ($app, $router) {
+                $this->parseTestMethodAnnotations($app, 'define-route', function ($method) use ($router) {
+                    $this->{$method}($router);
+                });
+            },
+            function () use ($app) {
+                $this->parseTestMethodAttributes($app, DefineRoute::class);
+            }
+        );
 
-        $this->app['router']->getRoutes()->refreshNameLookups();
+        refresh_router_lookups($router);
     }
 
     /**
@@ -65,7 +87,7 @@ trait HandlesRoutes
 
         $time = time();
 
-        $laravel = Application::create($this->getBasePath());
+        $laravel = Application::create(static::applicationBasePath());
 
         $files->put(
             $laravel->basePath("routes/testbench-{$time}.php"), $route
@@ -77,7 +99,7 @@ trait HandlesRoutes
             $files->exists(base_path('bootstrap/cache/routes-v7.php'))
         );
 
-        if (isset($this->app)) {
+        if ($this->app instanceof LaravelApplication) {
             $this->reloadApplication();
         }
 
@@ -90,14 +112,18 @@ trait HandlesRoutes
     protected function requireApplicationCachedRoutes(Filesystem $files): void
     {
         $this->afterApplicationCreated(function () {
-            require $this->app->getCachedRoutesPath();
+            if ($this->app instanceof LaravelApplication) {
+                require $this->app->getCachedRoutesPath();
+            }
         });
 
         $this->beforeApplicationDestroyed(function () use ($files) {
-            $files->delete(
-                base_path('bootstrap/cache/routes-v7.php'),
-                ...$files->glob(base_path('routes/testbench-*.php'))
-            );
+            if ($this->app instanceof LaravelApplication) {
+                $files->delete(
+                    base_path('bootstrap/cache/routes-v7.php'),
+                    ...$files->glob(base_path('routes/testbench-*.php'))
+                );
+            }
 
             sleep(1);
         });

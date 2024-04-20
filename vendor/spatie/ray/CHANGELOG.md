@@ -2,6 +2,134 @@
 
 All notable changes to `ray` will be documented in this file
 
+## 1.41.0 - 2024-01-24
+
+### What's Changed
+
+* Allow symfony 7.x by @thecaliskan in https://github.com/spatie/ray/pull/881
+* docs(app): docker add step to open gateway for remote by @ValentinGaudin in https://github.com/spatie/ray/pull/882
+* Add rector rule to remove ray calls from a codebase by @timvandijck in https://github.com/spatie/ray/pull/884
+* Bump actions/cache from 3 to 4 by @dependabot in https://github.com/spatie/ray/pull/888
+
+### New Contributors
+
+* @thecaliskan made their first contribution in https://github.com/spatie/ray/pull/881
+* @ValentinGaudin made their first contribution in https://github.com/spatie/ray/pull/882
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.40.1...1.41.0
+
+## 1.40.1 - 2023-11-20
+
+### What's Changed
+
+- Add showDuplicateQueries() to reference page by @AndreasHerss in https://github.com/spatie/ray/pull/865
+- Implement cURL Handle Caching by @JSlush611 in https://github.com/spatie/ray/pull/864
+
+### New Contributors
+
+- @AndreasHerss made their first contribution in https://github.com/spatie/ray/pull/865
+- @JSlush611 made their first contribution in https://github.com/spatie/ray/pull/864
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.40.0...1.40.1
+
+## 1.40.0 - 2023-11-07
+
+### What's Changed
+
+- Add support for calling closures before doing a ray request by @SebastiaanKloos in https://github.com/spatie/ray/pull/859
+- Bump stefanzweifel/git-auto-commit-action from 4 to 5 by @dependabot in https://github.com/spatie/ray/pull/850
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.39.0...1.40.0
+
+## 1.39.0 - 2023-09-18
+
+- add `expandAll()`
+
+## 1.38.0 - 2023-09-12
+
+### What's Changed
+
+- Add expand payload by @freekmurze in https://github.com/spatie/ray/pull/843
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.7...1.38.0
+
+## 1.37.7 - 2023-09-08
+
+- Fix issue with outputing arrays for copying.
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.6...1.37.7
+
+## 1.37.6 - 2023-09-08
+
+### What's Changed
+
+- Fix/issue 832 by @timvandijck in https://github.com/spatie/ray/pull/839
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.5...1.37.6
+
+## 1.37.5 - 2023-09-06
+
+### What's Changed
+
+- Add details about returning the closure return value by @grantholle in https://github.com/spatie/ray/pull/834
+- Check for recursiveness before creating clipboard data.
+
+### New Contributors
+
+- @grantholle made their first contribution in https://github.com/spatie/ray/pull/834
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.4...1.37.5
+
+## 1.37.4 - 2023-09-04
+
+- Fix a bug with Livewire 3 components being rendered instead of sent to Ray as a class
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.3...1.37.4
+
+## 1.37.3 - 2023-09-01
+
+### What's Changed
+
+- Bump dependabot/fetch-metadata from 1.4.0 to 1.5.1 by @dependabot in https://github.com/spatie/ray/pull/800
+- Bump dependabot/fetch-metadata from 1.5.1 to 1.6.0 by @dependabot in https://github.com/spatie/ray/pull/806
+- Feature/clipboard by @timvandijck in https://github.com/spatie/ray/pull/829
+
+### New Contributors
+
+- @timvandijck made their first contribution in https://github.com/spatie/ray/pull/829
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.2...1.37.3
+
+## 1.37.2 - 2023-05-17
+
+- improve handling of Pest test screen names
+
+## 1.37.1 - 2023-03-06
+
+### What's Changed
+
+- [1.x] Add phpstan rule to detect ray calls by @abenerd in https://github.com/spatie/ray/pull/781
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.37.0...1.37.1
+
+## 1.37.0 - 2023-03-03
+
+- add `invade` method
+
+## 1.36.2 - 2023-02-10
+
+- do not send context if there is none
+
+**Full Changelog**: https://github.com/spatie/ray/compare/1.36.1...1.36.2
+
+## 1.36.1 - 2023-02-09
+
+- support log context
+
+## 1.36.0 - 2022-08-11
+
+- preparation for upcoming feature
+
 ## 1.35.0 - 2022-08-09
 
 ### What's Changed
