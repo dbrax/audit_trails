@@ -26,7 +26,7 @@ class AuditTrails
         $audit->fullUrl = $fullUrl;
         $audit->device = $device;
 
-        $audit->plaftorm = $platform;
+        $audit->platftorm = $platform;
         $audit->created_by = $createdby;
         $audit->save();
     }
@@ -46,7 +46,7 @@ class AuditTrails
         $audit->request_id = $request_id;
         $audit->session_id = $session_id;
         $audit->created_by = $createdby;
-        $audit->plaftorm = $platform;
+        $audit->platftorm = $platform;
 
         $audit->save();
     }
